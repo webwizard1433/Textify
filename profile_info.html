@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Info</title>
+    <style>
+        :root {
+            /* Light Theme Variables */
+            --bg-color: #f0f2f5;
+            --text-color: #1c1e21;
+            --container-bg: #ffffff;
+            --input-border-color: #ccc;
+            --link-color: #007bff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* Dark Theme Variables */
+                --bg-color: #18191a;
+                --text-color: #e4e6eb;
+                --container-bg: #242526;
+                --input-border-color: #555;
+                --link-color: #4dabf7;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .profile-container {
+            background-color: var(--container-bg);
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: #8a8d91;
+            margin-bottom: 2rem;
+        }
+
+        .profile-picture-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            margin: 0 auto 2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border: 2px dashed var(--input-border-color);
+        }
+
+        .profile-picture-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-picture-container .upload-icon {
+            width: 50px;
+            height: 50px;
+            fill: #adb5bd;
+        }
+
+        #profile-picture-input {
+            display: none;
+        }
+
+        #name-input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-bottom: 2px solid var(--input-border-color);
+            background-color: transparent;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            text-align: center;
+            box-sizing: border-box;
+            margin-bottom: 2rem;
+        }
+
+        #name-input:focus {
+            outline: none;
+            border-bottom-color: var(--link-color);
+        }
+
+        .next-button {
+            background-color: var(--link-color);
+            color: #ffffff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="profile-container">
+        <h1>Profile info</h1>
+        <p>Please provide your Name and an optional profile photo.</p>
+
+        <div class="profile-picture-container" id="pfp-container">
+            <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+            <img id="pfp-preview" src="#" alt="Profile Preview" style="display:none;"/>
+        </div>
+        <input type="file" id="profile-picture-input" accept="image/*">
+
+        <input type="text" id="name-input" placeholder="Enter your name">
+
+        <button class="next-button" id="next-btn">NEXT</button>
+    </div>
+
+    <script>
+        const pfpContainer = document.getElementById('pfp-container');
+        const pfpInput = document.getElementById('profile-picture-input');
+        const pfpPreview = document.getElementById('pfp-preview');
+
+        const nextButton = document.getElementById('next-btn');
+
+        pfpContainer.addEventListener('click', () => pfpInput.click());
+
+        pfpInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                pfpPreview.src = URL.createObjectURL(file);
+                pfpPreview.style.display = 'block';
+                pfpContainer.querySelector('.upload-icon').style.display = 'none';
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            const nameInput = document.getElementById('name-input');
+            const userName = nameInput.value.trim();
+
+            if (!userName) {
+                alert('Please enter your name.');
+                return;
+            }
+
+            // Retrieve phone number from successful verification
+            const phoneNumber = sessionStorage.getItem('verifiedPhoneNumber');
+            if (!phoneNumber) {
+                alert('Verification error. Please start over.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('name', userName);
+            formData.append('phoneNumber', phoneNumber);
+
+            const file = pfpInput.files[0];
+            if (file) {
+                formData.append('profilePicture', file);
+            }
+
+            fetch('http://localhost:3000/api/profile', {
+                method: 'POST',
+                body: formData // No 'Content-Type' header needed, browser sets it for FormData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Save credentials to signal the user is logged in
+                    sessionStorage.setItem('userName', userName);
+                    // Keep verifiedPhoneNumber as the user's session identifier
+                    // sessionStorage.removeItem('verifiedPhoneNumber');
+                    window.location.href = 'home.html';
+                } else {
+                    alert(`Error saving profile: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error saving profile:', error);
+                alert('An error occurred while saving your profile.');
+            });
+        });
+    </script>
+
+</body>
+</html>

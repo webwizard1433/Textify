@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Your Phone Number</title>
+    <style>
+        :root {
+            /* Light Theme Variables */
+            --bg-color: #f0f2f5;
+            --text-color: #1c1e21;
+            --container-bg: #ffffff;
+            --input-border-color: #ccc;
+            --link-color: #007bff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* Dark Theme Variables */
+                --bg-color: #18191a;
+                --text-color: #e4e6eb;
+                --container-bg: #242526;
+                --input-border-color: #555;
+                --link-color: #4dabf7;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* Prevent scrolling when modal is open */
+        }
+
+        .verification-container {
+            background-color: var(--container-bg);
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            position: relative; /* Establish positioning context for the menu icon */
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: #8a8d91;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        select, input {
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--input-border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .phone-input-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        #country-code {
+            flex-basis: 25%;
+        }
+
+        #phone-number {
+            flex-basis: 75%;
+        }
+
+        .next-button {
+            background-color: var(--link-color);
+            color: #ffffff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: background-color 0.2s ease;
+            width: 100%;
+        }
+
+        .next-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* --- Three-dot Menu Styling --- */
+        .menu-icon {
+            position: absolute;
+            top: 1rem; /* Position from the top of the box */
+            right: 1rem; /* Position from the right of the box */
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        /* --- Modal Styling --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-box {
+            background-color: var(--container-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-box h2 {
+            font-size: 1.25rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-box #confirmed-phone-number {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .modal-box p {
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-button {
+            background: none;
+            border: none;
+            color: var(--link-color);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 8px 16px;
+        }
+
+        /* --- OTP Modal Specific Styling --- */
+        .otp-input-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 2rem 0;
+        }
+
+        .otp-input {
+            width: 45px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--input-border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* Hide the number input spinners for a cleaner look */
+        .otp-input::-webkit-outer-spin-button,
+        .otp-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .otp-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        #otp-error-message {
+            color: #dc3545; /* A standard error color */
+            margin-top: 1rem;
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="verification-container">
+        <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--text-color)">
+            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+        </svg>
+
+        <h1>Enter your phone number</h1>
+        <p>Textify will need to verify your phone number.</p>
+
+        <div class="input-group">
+            <select id="country-selector">
+                <option value="AF" data-code="+93">Afghanistan</option>
+                <option value="AL" data-code="+355">Albania</option>
+                <option value="DZ" data-code="+213">Algeria</option>
+                <option value="AS" data-code="+1-684">American Samoa</option>
+                <option value="AD" data-code="+376">Andorra</option>
+                <option value="AO" data-code="+244">Angola</option>
+                <option value="AI" data-code="+1-264">Anguilla</option>
+                <option value="AG" data-code="+1-268">Antigua &amp; Barbuda</option>
+                <option value="AR" data-code="+54">Argentina</option>
+                <option value="AM" data-code="+374">Armenia</option>
+                <option value="AW" data-code="+297">Aruba</option>
+                <option value="AU" data-code="+61">Australia</option>
+                <option value="AT" data-code="+43">Austria</option>
+                <option value="AZ" data-code="+994">Azerbaijan</option>
+                <option value="BS" data-code="+1-242">Bahamas</option>
+                <option value="BH" data-code="+973">Bahrain</option>
+                <option value="BD" data-code="+880">Bangladesh</option>
+                <option value="BB" data-code="+1-246">Barbados</option>
+                <option value="BY" data-code="+375">Belarus</option>
+                <option value="BE" data-code="+32">Belgium</option>
+                <option value="BZ" data-code="+501">Belize</option>
+                <option value="BJ" data-code="+229">Benin</option>
+                <option value="BM" data-code="+1-441">Bermuda</option>
+                <option value="BT" data-code="+975">Bhutan</option>
+                <option value="BO" data-code="+591">Bolivia</option>
+                <option value="BA" data-code="+387">Bosnia &amp; Herzegovina</option>
+                <option value="BW" data-code="+267">Botswana</option>
+                <option value="BR" data-code="+55">Brazil</option>
+                <option value="IO" data-code="+246">British Indian Ocean Territory</option>
+                <option value="VG" data-code="+1-284">British Virgin Islands</option>
+                <option value="BN" data-code="+673">Brunei</option>
+                <option value="BG" data-code="+359">Bulgaria</option>
+                <option value="BF" data-code="+226">Burkina Faso</option>
+                <option value="BI" data-code="+257">Burundi</option>
+                <option value="KH" data-code="+855">Cambodia</option>
+                <option value="CM" data-code="+237">Cameroon</option>
+                <option value="CA" data-code="+1">Canada</option>
+                <option value="CV" data-code="+238">Cape Verde</option>
+                <option value="KY" data-code="+1-345">Cayman Islands</option>
+                <option value="CF" data-code="+236">Central African Republic</option>
+                <option value="TD" data-code="+235">Chad</option>
+                <option value="CL" data-code="+56">Chile</option>
+                <option value="CN" data-code="+86">China</option>
+                <option value="CO" data-code="+57">Colombia</option>
+                <option value="KM" data-code="+269">Comoros</option>
+                <option value="CG" data-code="+242">Congo - Brazzaville</option>
+                <option value="CD" data-code="+243">Congo - Kinshasa</option>
+                <option value="CK" data-code="+682">Cook Islands</option>
+                <option value="CR" data-code="+506">Costa Rica</option>
+                <option value="HR" data-code="+385">Croatia</option>
+                <option value="CU" data-code="+53">Cuba</option>
+                <option value="CY" data-code="+357">Cyprus</option>
+                <option value="CZ" data-code="+420">Czechia</option>
+                <option value="CI" data-code="+225">Côte d’Ivoire</option>
+                <option value="DK" data-code="+45">Denmark</option>
+                <option value="DJ" data-code="+253">Djibouti</option>
+                <option value="DM" data-code="+1-767">Dominica</option>
+                <option value="DO" data-code="+1-809">Dominican Republic</option>
+                <option value="EC" data-code="+593">Ecuador</option>
+                <option value="EG" data-code="+20">Egypt</option>
+                <option value="SV" data-code="+503">El Salvador</option>
+                <option value="GQ" data-code="+240">Equatorial Guinea</option>
+                <option value="ER" data-code="+291">Eritrea</option>
+                <option value="EE" data-code="+372">Estonia</option>
+                <option value="SZ" data-code="+268">Eswatini</option>
+                <option value="ET" data-code="+251">Ethiopia</option>
+                <option value="FK" data-code="+500">Falkland Islands</option>
+                <option value="FO" data-code="+298">Faroe Islands</option>
+                <option value="FJ" data-code="+679">Fiji</option>
+                <option value="FI" data-code="+358">Finland</option>
+                <option value="FR" data-code="+33">France</option>
+                <option value="GF" data-code="+594">French Guiana</option>
+                <option value="PF" data-code="+689">French Polynesia</option>
+                <option value="GA" data-code="+241">Gabon</option>
+                <option value="GM" data-code="+220">Gambia</option>
+                <option value="GE" data-code="+995">Georgia</option>
+                <option value="DE" data-code="+49">Germany</option>
+                <option value="GH" data-code="+233">Ghana</option>
+                <option value="GI" data-code="+350">Gibraltar</option>
+                <option value="GR" data-code="+30">Greece</option>
+                <option value="GL" data-code="+299">Greenland</option>
+                <option value="GD" data-code="+1-473">Grenada</option>
+                <option value="GP" data-code="+590">Guadeloupe</option>
+                <option value="GU" data-code="+1-671">Guam</option>
+                <option value="GT" data-code="+502">Guatemala</option>
+                <option value="GN" data-code="+224">Guinea</option>
+                <option value="GW" data-code="+245">Guinea-Bissau</option>
+                <option value="GY" data-code="+592">Guyana</option>
+                <option value="HT" data-code="+509">Haiti</option>
+                <option value="HN" data-code="+504">Honduras</option>
+                <option value="HK" data-code="+852">Hong Kong SAR China</option>
+                <option value="HU" data-code="+36">Hungary</option>
+                <option value="IS" data-code="+354">Iceland</option>
+                <option value="IN" data-code="+91" selected>India</option>
+                <option value="ID" data-code="+62">Indonesia</option>
+                <option value="IR" data-code="+98">Iran</option>
+                <option value="IQ" data-code="+964">Iraq</option>
+                <option value="IE" data-code="+353">Ireland</option>
+                <option value="IL" data-code="+972">Israel</option>
+                <option value="IT" data-code="+39">Italy</option>
+                <option value="JM" data-code="+1-876">Jamaica</option>
+                <option value="JP" data-code="+81">Japan</option>
+                <option value="JO" data-code="+962">Jordan</option>
+                <option value="KZ" data-code="+7">Kazakhstan</option>
+                <option value="KE" data-code="+254">Kenya</option>
+                <option value="KI" data-code="+686">Kiribati</option>
+                <option value="KW" data-code="+965">Kuwait</option>
+                <option value="KG" data-code="+996">Kyrgyzstan</option>
+                <option value="LA" data-code="+856">Laos</option>
+                <option value="LV" data-code="+371">Latvia</option>
+                <option value="LB" data-code="+961">Lebanon</option>
+                <option value="LS" data-code="+266">Lesotho</option>
+                <option value="LR" data-code="+231">Liberia</option>
+                <option value="LY" data-code="+218">Libya</option>
+                <option value="LI" data-code="+423">Liechtenstein</option>
+                <option value="LT" data-code="+370">Lithuania</option>
+                <option value="LU" data-code="+352">Luxembourg</option>
+                <option value="MO" data-code="+853">Macao SAR China</option>
+                <option value="MG" data-code="+261">Madagascar</option>
+                <option value="MW" data-code="+265">Malawi</option>
+                <option value="MY" data-code="+60">Malaysia</option>
+                <option value="MV" data-code="+960">Maldives</option>
+                <option value="ML" data-code="+223">Mali</option>
+                <option value="MT" data-code="+356">Malta</option>
+                <option value="MH" data-code="+692">Marshall Islands</option>
+                <option value="MQ" data-code="+596">Martinique</option>
+                <option value="MR" data-code="+222">Mauritania</option>
+                <option value="MU" data-code="+230">Mauritius</option>
+                <option value="MX" data-code="+52">Mexico</option>
+                <option value="FM" data-code="+691">Micronesia</option>
+                <option value="MD" data-code="+373">Moldova</option>
+                <option value="MC" data-code="+377">Monaco</option>
+                <option value="MN" data-code="+976">Mongolia</option>
+                <option value="ME" data-code="+382">Montenegro</option>
+                <option value="MS" data-code="+1-664">Montserrat</option>
+                <option value="MA" data-code="+212">Morocco</option>
+                <option value="MZ" data-code="+258">Mozambique</option>
+                <option value="MM" data-code="+95">Myanmar (Burma)</option>
+                <option value="NA" data-code="+264">Namibia</option>
+                <option value="NR" data-code="+674">Nauru</option>
+                <option value="NP" data-code="+977">Nepal</option>
+                <option value="NL" data-code="+31">Netherlands</option>
+                <option value="NC" data-code="+687">New Caledonia</option>
+                <option value="NZ" data-code="+64">New Zealand</option>
+                <option value="NI" data-code="+505">Nicaragua</option>
+                <option value="NE" data-code="+227">Niger</option>
+                <option value="NG" data-code="+234">Nigeria</option>
+                <option value="NU" data-code="+683">Niue</option>
+                <option value="NF" data-code="+672">Norfolk Island</option>
+                <option value="KP" data-code="+850">North Korea</option>
+                <option value="MK" data-code="+389">North Macedonia</option>
+                <option value="MP" data-code="+1-670">Northern Mariana Islands</option>
+                <option value="NO" data-code="+47">Norway</option>
+                <option value="OM" data-code="+968">Oman</option>
+                <option value="PK" data-code="+92">Pakistan</option>
+                <option value="PW" data-code="+680">Palau</option>
+                <option value="PS" data-code="+970">Palestinian Territories</option>
+                <option value="PA" data-code="+507">Panama</option>
+                <option value="PG" data-code="+675">Papua New Guinea</option>
+                <option value="PY" data-code="+595">Paraguay</option>
+                <option value="PE" data-code="+51">Peru</option>
+                <option value="PH" data-code="+63">Philippines</option>
+                <option value="PL" data-code="+48">Poland</option>
+                <option value="PT" data-code="+351">Portugal</option>
+                <option value="PR" data-code="+1-787">Puerto Rico</option>
+                <option value="QA" data-code="+974">Qatar</option>
+                <option value="RO" data-code="+40">Romania</option>
+                <option value="RU" data-code="+7">Russia</option>
+                <option value="RW" data-code="+250">Rwanda</option>
+                <option value="RE" data-code="+262">Réunion</option>
+                <option value="WS" data-code="+685">Samoa</option>
+                <option value="SM" data-code="+378">San Marino</option>
+                <option value="SA" data-code="+966">Saudi Arabia</option>
+                <option value="SN" data-code="+221">Senegal</option>
+                <option value="RS" data-code="+381">Serbia</option>
+                <option value="SC" data-code="+248">Seychelles</option>
+                <option value="SL" data-code="+232">Sierra Leone</option>
+                <option value="SG" data-code="+65">Singapore</option>
+                <option value="SK" data-code="+421">Slovakia</option>
+                <option value="SI" data-code="+386">Slovenia</option>
+                <option value="SB" data-code="+677">Solomon Islands</option>
+                <option value="SO" data-code="+252">Somalia</option>
+                <option value="ZA" data-code="+27">South Africa</option>
+                <option value="KR" data-code="+82">South Korea</option>
+                <option value="ES" data-code="+34">Spain</option>
+                <option value="LK" data-code="+94">Sri Lanka</option>
+                <option value="VC" data-code="+1-784">St. Vincent &amp; Grenadines</option>
+                <option value="SD" data-code="+249">Sudan</option>
+                <option value="SR" data-code="+597">Suriname</option>
+                <option value="SE" data-code="+46">Sweden</option>
+                <option value="CH" data-code="+41">Switzerland</option>
+                <option value="SY" data-code="+963">Syria</option>
+                <option value="TW" data-code="+886">Taiwan</option>
+                <option value="TJ" data-code="+992">Tajikistan</option>
+                <option value="TZ" data-code="+255">Tanzania</option>
+                <option value="TH" data-code="+66">Thailand</option>
+                <option value="TL" data-code="+670">Timor-Leste</option>
+                <option value="TG" data-code="+228">Togo</option>
+                <option value="TO" data-code="+676">Tonga</option>
+                <option value="TT" data-code="+1-868">Trinidad &amp; Tobago</option>
+                <option value="TN" data-code="+216">Tunisia</option>
+                <option value="TR" data-code="+90">Turkey</option>
+                <option value="TM" data-code="+993">Turkmenistan</option>
+                <option value="TC" data-code="+1-649">Turks &amp; Caicos Islands</option>
+                <option value="TV" data-code="+688">Tuvalu</option>
+                <option value="UG" data-code="+256">Uganda</option>
+                <option value="UA" data-code="+380">Ukraine</option>
+                <option value="AE" data-code="+971">United Arab Emirates</option>
+                <option value="GB" data-code="+44">United Kingdom</option>
+                <option value="US" data-code="+1">United States</option>
+                <option value="UY" data-code="+598">Uruguay</option>
+                <option value="UZ" data-code="+998">Uzbekistan</option>
+                <option value="VU" data-code="+678">Vanuatu</option>
+                <option value="VA" data-code="+379">Vatican City</option>
+                <option value="VE" data-code="+58">Venezuela</option>
+                <option value="VN" data-code="+84">Vietnam</option>
+                <option value="YE" data-code="+967">Yemen</option>
+                <option value="ZM" data-code="+260">Zambia</option>
+                <option value="ZW" data-code="+263">Zimbabwe</option>
+            </select>
+
+            <div class="phone-input-container">
+                <input type="text" id="country-code" placeholder="+91" readonly>
+                <input type="tel" id="phone-number" placeholder="Phone number">
+            </div>
+        </div>
+
+        <button class="next-button" id="next-btn">Next</button>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmation-modal">
+        <div class="modal-box">
+            <h2>You entered the phone number:</h2>
+            <div id="confirmed-phone-number"></div>
+            <p>Is this OK, or would you like to edit the number?</p>
+            <div class="modal-actions">
+                <button class="modal-button" id="edit-btn">EDIT</button>
+                <button class="modal-button" id="ok-btn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTP Entry Modal -->
+    <div class="modal-overlay" id="otp-modal">
+        <div class="modal-box">
+            <h2>Enter Verification Code</h2>
+            <p>We've sent a code to <span id="otp-phone-number"></span>.</p>
+            <div class="otp-input-container">
+                <input type="number" class="otp-input" maxlength="1">
+                <input type="number" class="otp-input" maxlength="1">
+                <input type="number" class="otp-input" maxlength="1">
+                <input type="number" class="otp-input" maxlength="1">
+                <input type="number" class="otp-input" maxlength="1">
+                <input type="number" class="otp-input" maxlength="1">
+            </div>
+            <p id="otp-error-message">Invalid OTP. Please try again.</p>
+            <button class="next-button" id="verify-otp-btn">Verify</button>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        const countrySelector = document.getElementById('country-selector');
+        const countryCodeInput = document.getElementById('country-code');
+        const phoneNumberInput = document.getElementById('phone-number');
+        const nextButton = document.getElementById('next-btn');
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const confirmedPhoneNumber = document.getElementById('confirmed-phone-number');
+        const editButton = document.getElementById('edit-btn');
+        const okButton = document.getElementById('ok-btn');
+
+        // New elements for the OTP modal
+        const otpModal = document.getElementById('otp-modal');
+        const otpPhoneNumberSpan = document.getElementById('otp-phone-number');
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const verifyOtpButton = document.getElementById('verify-otp-btn');
+        const otpErrorMessage = document.getElementById('otp-error-message');
+
+        // Clear any previous verification state when the page loads
+        // This ensures a clean start if the user is editing their number.
+        sessionStorage.removeItem('verifiedPhoneNumber');
+
+
+        // Function to update the country code based on selection
+        const updateCountryCode = () => {
+            const selectedOption = countrySelector.options[countrySelector.selectedIndex];
+            const countryCode = selectedOption.getAttribute('data-code');
+            countryCodeInput.value = countryCode;
+        };
+
+        // Add event listener to the dropdown
+        countrySelector.addEventListener('change', updateCountryCode);
+
+        // Set initial country code on page load
+        updateCountryCode();
+
+        // Show the modal when the "Next" button is clicked
+        nextButton.addEventListener('click', () => {
+            // --- Phone Number Validation ---
+            const phoneNumber = phoneNumberInput.value.trim();
+            // A more generic validation: must not be empty and must contain only digits.
+            if (!phoneNumber || !/^\d+$/.test(phoneNumber)) {
+                alert('Please enter a valid phone number using only digits.');
+                return; // Stop the function if validation fails
+            }
+
+            const fullNumber = `${countryCodeInput.value} ${phoneNumberInput.value}`;
+            confirmedPhoneNumber.textContent = fullNumber;
+            confirmationModal.style.visibility = 'visible';
+            confirmationModal.style.opacity = '1';
+        });
+
+        // Hide the modal when the "EDIT" button is clicked
+        editButton.addEventListener('click', () => {
+            confirmationModal.style.visibility = 'hidden';
+            confirmationModal.style.opacity = '0';
+        });
+
+        // Handle the "OK" button click to send OTP
+        okButton.addEventListener('click', async () => {
+            const fullNumber = `${countryCodeInput.value.trim()}${phoneNumberInput.value.trim()}`;
+            
+            // Disable buttons to prevent multiple clicks
+            okButton.disabled = true;
+            editButton.disabled = true;
+            okButton.textContent = 'Sending...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: fullNumber })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to send OTP');
+                }
+
+                if (data.success) {
+                    console.log('API call successful, OTP sent.');
+                    // Hide confirmation modal and show OTP modal
+                    confirmationModal.style.visibility = 'hidden';
+                    confirmationModal.style.opacity = '0';
+
+                    otpPhoneNumberSpan.textContent = confirmedPhoneNumber.textContent;
+                    otpModal.style.visibility = 'visible';
+                    otpModal.style.opacity = '1';
+                    otpInputs[0].focus(); // Focus the first OTP input box
+                } else {
+                    throw new Error(data.message || 'An unknown error occurred.');
+                }
+            } catch (error) {
+                console.error('Error calling send-otp API:', error);
+                alert(`Error: ${error.message}`);
+            } finally {
+                // Re-enable buttons regardless of success or failure
+                okButton.disabled = false;
+                editButton.disabled = false;
+                okButton.textContent = 'OK';
+            }
+        });
+
+        // --- OTP Input Logic ---
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                // If a digit is entered, move to the next input
+                if (input.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                // If backspace is pressed on an empty input, move to the previous one
+                if (e.key === 'Backspace' && input.value.length === 0 && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Handle the "Verify" button click
+        verifyOtpButton.addEventListener('click', async () => {
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            const fullNumber = `${countryCodeInput.value.trim()}${phoneNumberInput.value.trim()}`;
+
+            // Basic validation
+            if (otp.length !== 6) {
+                otpErrorMessage.textContent = 'Please enter all 6 digits.';
+                otpErrorMessage.style.display = 'block';
+                return;
+            }
+
+            verifyOtpButton.disabled = true;
+            verifyOtpButton.textContent = 'Verifying...';
+            otpErrorMessage.style.display = 'none'; // Hide previous errors
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: fullNumber, otp: otp })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Invalid OTP.');
+                }
+
+                // --- SUCCESS ---
+                console.log('OTP Verified Successfully!');
+                // Store the verified number in sessionStorage for the next page
+                sessionStorage.setItem('verifiedPhoneNumber', fullNumber);
+                // Navigate to the profile or home page
+                window.location.href = 'profile_setup.html'; // Or 'home.html' if profile exists
+
+            } catch (error) {
+                console.error('Error verifying OTP:', error);
+                otpErrorMessage.textContent = error.message;
+                otpErrorMessage.style.display = 'block';
+                // Clear inputs for re-entry
+                otpInputs.forEach(input => input.value = '');
+                otpInputs[0].focus();
+            } finally {
+                verifyOtpButton.disabled = false;
+                verifyOtpButton.textContent = 'Verify';
+            }
+        });
+
+    </script>
+
+</body>
+</html>

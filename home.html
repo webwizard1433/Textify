@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Textify</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #1c1e21;
+            --container-bg: #ffffff;
+            --header-bg: #007bff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #18191a;
+                --text-color: #e4e6eb;
+                --container-bg: #242526;
+                --header-bg: #2d343a;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem 1rem; /* Add some padding around the app container */
+            display: flex; /* For centering the app container */
+            justify-content: center;
+        }
+
+        .header {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* The shadow will be on the main container now */
+            /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .menu-container {
+            position: relative;
+        }
+
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            fill: white;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 30px;
+            right: 0;
+            background-color: var(--container-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: var(--text-color);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: var(--bg-color);
+        }
+
+        main {
+            /* No longer needs flex properties */
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden; /* Important for keeping the header's top corners rounded */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-box {
+            /* Styles moved to .app-container */
+            overflow-y: auto; /* Allow scrolling for the chat list */
+        }
+
+        .chat-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color, #e9ecef);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .chat-item:hover {
+            background-color: var(--bg-color);
+        }
+
+        .chat-item:last-child {
+            border-bottom: none;
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 1rem;
+        }
+
+        .chat-details {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .chat-name {
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .last-message {
+            margin: 0.25rem 0 0;
+            font-size: 0.9rem;
+            color: #8a8d91;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .search-container {
+            padding: 0.75rem 1rem;
+            background-color: var(--container-bg);
+            border-bottom: 1px solid var(--border-color, #e9ecef);
+        }
+
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            width: 18px;
+            height: 18px;
+            fill: #8a8d91;
+        }
+
+        #search-bar {
+            width: 100%;
+            padding: 8px 12px 8px 35px; /* Left padding to make space for icon */
+            border-radius: 8px;
+            border: 1px solid var(--border-color, #e9ecef);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="header">
+            <h1>Textify</h1>
+            <div class="menu-container">
+                <svg class="menu-icon" id="menu-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+                <div class="dropdown-menu" id="dropdown">
+                    <a href="settings.html">Setting</a>
+                    <a href="#" id="logout-btn-home">Log Out</a>
+                </div>
+            </div>
+        </header>
+
+        <div class="search-container">
+            <div class="search-wrapper">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" id="search-bar" placeholder="Search or start new chat">
+            </div>
+        </div>
+
+        <main>
+            <div class="content-box">
+                <ul class="chat-list">
+                    <li class="chat-item">
+                        <img src="https://i.pravatar.cc/150?img=1" alt="Avatar" class="chat-avatar">
+                        <div class="chat-details">
+                            <p class="chat-name">Jane Doe</p>
+                            <p class="last-message">Sounds good! See you then.</p>
+                        </div>
+                    </li>
+                    <li class="chat-item">
+                        <img src="https://i.pravatar.cc/150?img=2" alt="Avatar" class="chat-avatar">
+                        <div class="chat-details">
+                            <p class="chat-name">John Smith</p>
+                            <p class="last-message">Okay, I'll check the documents and get back to you shortly.</p>
+                        </div>
+                    </li>
+                    <li class="chat-item">
+                        <img src="https://i.pravatar.cc/150?img=3" alt="Avatar" class="chat-avatar">
+                        <div class="chat-details">
+                            <p class="chat-name">Alex Johnson</p>
+                            <p class="last-message">Haha, that's hilarious! 😂</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const menuButton = document.getElementById('menu-btn');
+        const dropdownMenu = document.getElementById('dropdown');
+        const logoutButtonHome = document.getElementById('logout-btn-home');
+
+        menuButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent the window click event from firing immediately
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Close the dropdown if the user clicks outside of it
+        window.addEventListener('click', () => {
+            if (dropdownMenu.style.display === 'block') {
+                dropdownMenu.style.display = 'none';
+            }
+        });
+
+        logoutButtonHome.addEventListener('click', (e) => {
+            e.preventDefault();
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        });
+    </script>
+
+</body>
+</html>

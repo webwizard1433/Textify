@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Setup</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #1c1e21;
+            --container-bg: #ffffff;
+            --input-border-color: #ccc;
+            --link-color: #007bff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #18191a;
+                --text-color: #e4e6eb;
+                --container-bg: #242526;
+                --input-border-color: #555;
+                --link-color: #4dabf7;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .setup-container {
+            background-color: var(--container-bg);
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: #8a8d91;
+            margin-bottom: 2rem;
+        }
+
+        .profile-picture-container {
+            margin-bottom: 2rem;
+            cursor: pointer;
+        }
+
+        #profile-image-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--input-border-color);
+            background-color: var(--bg-color);
+        }
+
+        #profile-picture-input {
+            display: none;
+        }
+
+        #name-input {
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--input-border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .next-button {
+            background-color: var(--link-color);
+            color: #ffffff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: background-color 0.2s ease;
+            width: 100%;
+        }
+
+        .next-button:hover {
+            background-color: #0056b3;
+        }
+
+        #error-message {
+            color: #dc3545;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .phone-display-container {
+            margin-bottom: 2rem;
+            padding: 10px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--input-border-color);
+        }
+
+        .phone-display-container p {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="setup-container">
+        <h1>Profile info</h1>
+        <p>Please provide your name and an optional profile photo.</p>
+
+        <div class="phone-display-container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <p>Your verified number is: <strong id="verified-number-display"></strong></p>
+                <a href="phone_verification.html" id="edit-number-link" style="font-size: 0.9rem; color: var(--link-color); text-decoration: none;">Edit</a>
+            </div>
+            <p style="font-size: 0.8rem; color: #8a8d91; margin-top: 5px;">To change your number, you will need to re-verify via OTP.</p>
+        </div>
+
+        <form id="profile-form">
+            <div class="profile-picture-container" id="profile-picture-label">
+                <img id="profile-image-preview" src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="Profile Picture Preview">
+                <input type="file" id="profile-picture-input" name="profilePicture" accept="image/*">
+            </div>
+
+            <input type="text" id="name-input" name="name" placeholder="Type your name here" required>
+
+            <p id="error-message"></p>
+
+            <button type="submit" class="next-button" id="save-profile-btn">Next</button>
+        </form>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        const profileForm = document.getElementById('profile-form');
+        const profilePictureInput = document.getElementById('profile-picture-input');
+        const profileImagePreview = document.getElementById('profile-image-preview');
+        const profilePictureLabel = document.getElementById('profile-picture-label');
+        const nameInput = document.getElementById('name-input');
+        const saveProfileBtn = document.getElementById('save-profile-btn');
+        const errorMessage = document.getElementById('error-message');
+        const verifiedNumberDisplay = document.getElementById('verified-number-display');
+        const editNumberLink = document.getElementById('edit-number-link');
+
+        // Check if user is authenticated
+        const verifiedPhoneNumber = sessionStorage.getItem('verifiedPhoneNumber');
+        if (!verifiedPhoneNumber) {
+            // If no verified number, redirect to the start of the login flow
+            window.location.href = 'phone_verification.html';
+        } else {
+            // Display the verified phone number on the page
+            verifiedNumberDisplay.textContent = verifiedPhoneNumber;
+        }
+
+        // When user clicks 'Edit', clear the session storage so they start fresh
+        editNumberLink.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent immediate navigation
+            sessionStorage.removeItem('verifiedPhoneNumber');
+            window.location.href = 'phone_verification.html';
+        });
+
+        // Handle profile picture selection
+        profilePictureLabel.addEventListener('click', () => {
+            profilePictureInput.click();
+        });
+
+        profilePictureInput.addEventListener('change', () => {
+            const file = profilePictureInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    profileImagePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle form submission
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+
+            const name = nameInput.value.trim();
+            if (!name) {
+                errorMessage.textContent = 'Please enter your name.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            saveProfileBtn.disabled = true;
+            saveProfileBtn.textContent = 'Saving...';
+            errorMessage.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('phoneNumber', verifiedPhoneNumber);
+            if (profilePictureInput.files[0]) {
+                formData.append('profilePicture', profilePictureInput.files[0]);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/profile`, {
+                    method: 'POST',
+                    body: formData // No 'Content-Type' header needed, browser sets it for FormData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to save profile.');
+                }
+
+                // Profile saved, now navigate to the home screen
+                window.location.href = 'home.html';
+
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+            } finally {
+                saveProfileBtn.disabled = false;
+                saveProfileBtn.textContent = 'Next';
+            }
+        });
+    </script>
+
+</body>
+</html>

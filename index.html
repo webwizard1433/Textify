@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Textify Headings</title>
+    <style>
+        /* Basic styling for the page for better presentation */
+        :root {
+            /* Light Theme Variables */
+            --bg-color: #f0f2f5;
+            --text-color: #1c1e21;
+            --container-bg: #ffffff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* Dark Theme Variables */
+                --bg-color: #18191a;
+                --text-color: #e4e6eb;
+                --container-bg: #242526;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0; /* Remove default body margin */
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            justify-content: center; /* Horizontally center the main content */
+            align-items: center; /* Vertically center the main content */
+            height: 100vh; /* Make body take full viewport height */
+            padding: 2rem 0; /* Add space at the top and bottom of the page */
+            box-sizing: border-box; /* Include padding in height calculation */
+        }
+
+        .main-content-box {
+            background-color: var(--container-bg);
+            border: 2px solid #007bff; /* Blue border */
+            border-radius: 12px;
+            padding: 2rem 3rem 3rem; /* Adjust padding to account for menu */
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 550px; /* Optional: constrain the width a bit */
+            position: relative; /* Establish positioning context for the menu icon */
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        h1 {
+            margin-top: 0; /* Remove the default top margin */
+            margin-bottom: 1.5rem; /* Keeps space below the heading if you add more content */
+        }
+
+        /* --- Example 1: Simple and Clean Heading --- */
+        .heading-simple {
+            font-size: 3rem;
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 0.5rem;
+            display: inline-block; /* Makes the border only as wide as the text */
+        }
+
+        /* --- Example 2: Heading with a Text Shadow for a 3D effect --- */
+        .heading-shadow {
+            font-size: 3.5rem;
+            color: #4a4a4a;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* horizontal vertical blur color */
+        }
+
+        /* --- Example 3: Gradient Text Heading --- */
+        .heading-gradient {
+            font-size: 4rem;
+            font-weight: bold;
+            /* Create a background gradient */
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            /* Clip the background to the text */
+            -webkit-background-clip: text;
+            background-clip: text;
+            /* Make the text color transparent to show the gradient */
+            color: transparent;
+        }
+
+        /* --- Example 4: Outlined (Stroked) Text Heading --- */
+        .heading-outline {
+            font-size: 4rem;
+            font-weight: bold;
+            color: white; /* The fill color of the text */
+            /* Add a stroke (outline) around the text */
+            -webkit-text-stroke: 2px #1c1e21; /* width and color */
+            text-stroke: 2px #1c1e21; /* Standard property (less support) */
+        }
+
+        /* --- Logo and Menu Container --- */
+        .logo-container {
+            position: relative; /* Establishes a positioning context for the menu */
+            margin-bottom: 2rem; /* Space below the logo */
+        }
+
+        /* --- Logo Styling --- */
+        .logo {
+            width: 100px; /* Current size */
+            height: 100px; /* Set height for consistent background */
+            border-radius: 8px; /* Soft rounded corners instead of a circle */
+            background: linear-gradient(135deg, #ffffff 50%, #e0e0e0 50%); /* White and grey mix */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Optional: adds a subtle shadow */
+        }
+
+        /* --- Three-dot Menu Styling --- */
+        .menu-icon {
+            position: absolute;
+            top: 1rem; /* Position from the top of the box */
+            right: 1rem; /* Position from the right of the box */
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .main-heading {
+            font-size: 2.5rem; /* Adjusted font size */
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem; /* Space below the welcome text */
+        }
+
+        .info-text {
+            text-align: center;
+            max-width: 450px; /* Constrain width for readability */
+            font-size: 0.875rem;
+            color: #8a8d91;
+            line-height: 1.5;
+        }
+
+        .agree-button {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            margin-top: 2rem; /* Space above the button */
+            transition: background-color 0.2s ease;
+        }
+
+        .agree-button:hover {
+            background-color: #0056b3;
+        }
+
+        .language-selector-container {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        #language-selector {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="main-content-box">
+        <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--text-color)">
+            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+        </svg>
+
+        <div class="logo-container">
+            <img src="Textify.png" alt="Textify Logo" class="logo">
+        </div>
+
+        <h1 class="main-heading" data-i18n-key="welcome">
+            Welcome to Textify
+        </h1>
+
+        <p class="info-text" data-i18n-key="terms">
+            By signing up, you agree to Textify's Privacy Policy and Terms of Service. We use your information to create your account, deliver our services, and help keep Textify safe and secure. In settings, you can access, manage, and delete your account information. <a href="#" data-i18n-key="learnMoreLink">Learn More</a>
+        </p>
+
+        <div class="language-selector-container">
+            <select id="language-selector">
+                <option value="en">English (US)</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="pt-BR">Portuguese - Brazil</option>
+                <option value="ru">Russian</option>
+                <option value="id">Indonesian</option>
+                <option value="ar">Arabic</option>
+                <option value="de">German</option>
+                <option value="tr">Turkish</option>
+                <option value="it">Italian</option>
+                <option value="hi">Hindi</option>
+                <option value="bn">Bengali</option>
+                <option value="mr">Marathi</option>
+                <option value="ur-PK">Urdu - Pakistan</option>
+                <option value="gu">Gujarati</option>
+                <option value="fa">Persian</option>
+                <option value="nl">Dutch</option>
+                <option value="pl">Polish</option>
+                <option value="ro">Romanian</option>
+                <option value="zh-TW">Chinese (Traditional) Taiwan</option>
+                <option value="zh-HK">Chinese (Traditional) Hong Kong</option>
+                <option value="ms">Malay</option>
+                <option value="he">Hebrew</option>
+                <option value="cs">Czech</option>
+                <option value="sw">Swahili</option>
+                <option value="uk">Ukrainian</option>
+                <option value="th">Thai</option>
+                <option value="zh-CN">Chinese (Simplified) China</option>
+                <option value="hu">Hungarian</option>
+                <option value="sk">Slovak</option>
+                <option value="pt-PT">Portuguese - Portugal</option>
+                <option value="pa">Punjabi</option>
+                <option value="ta">Tamil</option>
+                <option value="te">Telugu</option>
+                <option value="ml">Malayalam</option>
+                <option value="kn">Kannada</option>
+                <option value="af">Afrikaans</option>
+                <option value="sq">Albanian</option>
+                <option value="az">Azerbaijani - latn</option>
+                <option value="bg">Bulgarian</option>
+                <option value="ca">Catalan</option>
+                <option value="hr">Croatian</option>
+                <option value="da">Danish</option>
+                <option value="et">Estonian</option>
+                <option value="fil">Filipino</option>
+                <option value="fi">Finnish</option>
+                <option value="el">Greek</option>
+                <option value="ja">Japanese</option>
+                <option value="kk">Kazakh</option>
+                <option value="ko">Korean</option>
+                <option value="lo">Lao</option>
+                <option value="lv">Latvian</option>
+                <option value="lt">Lithuanian</option>
+                <option value="mk">Macedonian</option>
+                <option value="no">Norwegian</option>
+                <option value="sr">Serbian - Cyrillic/Latin</option>
+                <option value="sl">Slovenian</option>
+                <option value="sv">Swedish</option>
+                <option value="uz">Uzbek</option>
+                <option value="vi">Vietnamese</option>
+                <option value="ga">Irish</option>
+            </select>
+        </div>
+
+        <a href="phone_verification.html" class="agree-button" data-i18n-key="agree">
+            Agree and Continue
+        </a>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                welcome: 'Welcome to Textify',
+                terms: `By signing up, you agree to Textify's Privacy Policy and Terms of Service. We use your information to create your account, deliver our services, and help keep Textify safe and secure. In settings, you can access, manage, and delete your account information. <a href="#" data-i18n-key="learnMoreLink">Learn More</a>`,
+                learnMoreLink: 'Learn More',
+                agree: 'Agree and Continue'
+            },
+            es: {
+                welcome: 'Bienvenido a Textify',
+                terms: `Al registrarte, aceptas la Política de Privacidad y los Términos de Servicio de Textify. Usamos tu información para crear tu cuenta, ofrecer nuestros servicios y ayudar a mantener Textify seguro. En la configuración, puedes acceder, administrar y eliminar la información de tu cuenta. <a href="#" data-i18n-key="learnMoreLink">Aprende más</a>`,
+                learnMoreLink: 'Aprende más',
+                agree: 'Aceptar y Continuar'
+            },
+            fr: {
+                welcome: 'Bienvenue sur Textify',
+                terms: `En vous inscrivant, vous acceptez la Politique de Confidentialité et les Conditions d'Utilisation de Textify. Nous utilisons vos informations pour créer votre compte, fournir nos services et aider à maintenir Textify sûr et sécurisé. Dans les paramètres, vous pouvez accéder, gérer et supprimer les informations de votre compte. <a href="#" data-i18n-key="learnMoreLink">En savoir plus</a>`,
+                learnMoreLink: 'En savoir plus',
+                agree: 'Accepter et Continuer'
+            }
+            // Add other language translations here
+        };
+
+        const languageSelector = document.getElementById('language-selector');
+
+        const setLanguage = (language) => {
+            // Get all elements with the data-i18n-key attribute and convert NodeList to an Array
+            const elements = Array.from(document.querySelectorAll('[data-i18n-key]'));
+            // Iterate in reverse to process nested elements (like the 'Learn More' link) first
+            elements.reverse().forEach(element => {
+                const key = element.getAttribute('data-i18n-key');
+                const translation = translations[language]?.[key];
+                if (translation) {
+                    // Use innerHTML for elements that contain other HTML tags (like the terms paragraph)
+                    // and textContent for simple text elements.
+                    element.innerHTML = translation; // Using innerHTML is correct for your current structure
+                }
+            });
+        };
+
+        languageSelector.addEventListener('change', (event) => {
+            setLanguage(event.target.value);
+        });
+
+        // Set initial language to English (US)
+        const initialLanguage = 'en';
+        languageSelector.value = initialLanguage;
+        setLanguage(initialLanguage);
+    </script>
+
+</body>
+</html>

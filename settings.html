@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #1c1e21;
+            --container-bg: #ffffff;
+            --header-bg: #007bff;
+            --border-color: #e9ecef;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #18191a;
+                --text-color: #e4e6eb;
+                --container-bg: #242526;
+                --header-bg: #2d343a;
+                --border-color: #3a3b3c;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem 1rem; /* Add some padding around the app container */
+            display: flex; /* For centering the app container */
+            justify-content: center;
+        }
+
+        .header {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            /* The shadow will be on the main container now */
+            /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .back-arrow {
+            width: 24px;
+            height: 24px;
+            fill: white;
+            cursor: pointer;
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .profile-pic {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: #ccc;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .profile-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        main {
+            /* No longer needs flex properties */
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden; /* Important for keeping the header's top corners rounded */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-box {
+            /* Styles moved to .app-container */
+        }
+
+        .settings-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .settings-list li {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .settings-list li:hover {
+            background-color: var(--bg-color);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="header">
+            <a href="home.html">
+                <svg class="back-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </a>
+            <h1>Setting</h1>
+        </header>
+
+        <main>
+            <div class="content-box">
+                <a href="profile.html" class="profile-link">
+                    <div class="profile-section">
+                        <img src="https://i.pravatar.cc/150" alt="Profile Picture" class="profile-pic" id="profile-pic-display">
+                        <div class="user-name" id="user-name-display">Your Name</div>
+                    </div>
+                </a>
+
+                <ul class="settings-list">
+                    <li>Account</li>
+                    <li>Privacy</li>
+                    <li>Chats</li>
+                    <li>Notifications</li>
+                    <li>Storage and data</li>
+                    <li>App language</li>
+                    <li>Help</li>
+                    <li id="logout-btn-settings" style="color: red;">Log Out</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userNameDisplay = document.getElementById('user-name-display');
+            const profilePicDisplay = document.getElementById('profile-pic-display');
+            const logoutButtonSettings = document.getElementById('logout-btn-settings');
+            
+            // Get user info from session storage
+            const userName = sessionStorage.getItem('userName');
+            const phoneNumber = sessionStorage.getItem('verifiedPhoneNumber');
+
+            if (userName) {
+                userNameDisplay.textContent = userName;
+            }
+
+            if (phoneNumber) {
+                // Fetch the full profile from the backend
+                fetch(`http://localhost:3000/api/profile/${phoneNumber}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.user.profilePicture) {
+                            // The backend stores the path like 'uploads\\filename.jpg'.
+                            // We need to replace backslashes with forward slashes for the URL.
+                            const imageUrl = `http://localhost:3000/${data.user.profilePicture.replace(/\\/g, '/')}`;
+                            profilePicDisplay.src = imageUrl;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching profile picture:', error);
+                    });
+            } else {
+                console.log('No logged-in user found.');
+            }
+
+            logoutButtonSettings.addEventListener('click', () => {
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+
+</body>
+</html>

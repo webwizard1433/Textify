@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #1c1e21;
+            --container-bg: #ffffff;
+            --header-bg: #007bff;
+            --border-color: #e9ecef;
+            --sub-text-color: #8a8d91;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #18191a;
+                --text-color: #e4e6eb;
+                --container-bg: #242526;
+                --header-bg: #2d343a;
+                --border-color: #3a3b3c;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .back-arrow {
+            width: 24px;
+            height: 24px;
+            fill: white;
+            cursor: pointer;
+        }
+
+        .profile-picture-section {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #ccc;
+            object-fit: cover;
+        }
+
+        .edit-link {
+            color: var(--link-color);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .edit-icon {
+            width: 20px;
+            height: 20px;
+            fill: var(--sub-text-color);
+        }
+
+        .info-section {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--sub-text-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+        }
+
+        .info-value-editable {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-value-editable input {
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 1rem;
+            font-family: inherit;
+            width: 100%;
+            padding: 4px 0;
+            border-bottom: 2px solid var(--link-color);
+        }
+
+        .info-value-editable input:focus {
+            outline: none;
+        }
+
+        .edit-actions {
+            display: none; /* Hidden by default */
+            padding: 1rem 1.5rem;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="header">
+            <a href="settings.html">
+                <svg class="back-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </a>
+            <h1>Profile</h1>
+        </header>
+
+        <main>
+            <div class="profile-picture-section">
+                <input type="file" id="pfp-input" accept="image/*" style="display: none;">
+                <img src="https://i.pravatar.cc/150" alt="Profile Picture" class="profile-pic" id="profile-pic-display">
+                <a href="#" class="edit-link" id="edit-pfp-link">Edit</a>
+            </div>
+
+            <div class="info-section">
+                <div class="info-label">Name</div>
+                <div class="info-value-editable">
+                    <div class="info-value" id="user-name-display">Loading...</div>
+                    <a href="#" class="edit-icon-link" data-field="name"><svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-label">About</div>
+                <div class="info-value-editable">
+                    <div class="info-value" id="about-display">Hey there! I am using Textify.</div>
+                    <a href="#" class="edit-icon-link" data-field="about"><svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-label">Phone</div>
+                <div class="info-value-editable">
+                    <div class="info-value" id="phone-number-display">Loading...</div>
+                    <a href="#" class="edit-icon-link" data-field="phone"><svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userNameDisplay = document.getElementById('user-name-display');
+            const profilePicDisplay = document.getElementById('profile-pic-display');
+            const phoneNumberDisplay = document.getElementById('phone-number-display');
+            const aboutDisplay = document.getElementById('about-display');
+            const editPfpLink = document.getElementById('edit-pfp-link');
+            const pfpInput = document.getElementById('pfp-input');
+
+            let originalValues = {};
+
+            const phoneNumber = sessionStorage.getItem('verifiedPhoneNumber');
+
+            if (phoneNumber) {
+                phoneNumberDisplay.textContent = phoneNumber;
+
+                // Fetch the full profile from the backend
+                fetch(`http://localhost:3000/api/profile/${encodeURIComponent(phoneNumber)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const user = data.user;
+                            if (user.name) {
+                                userNameDisplay.textContent = user.name;
+                                originalValues.name = user.name;
+                            }
+                            if (user.about) {
+                                aboutDisplay.textContent = user.about;
+                                originalValues.about = user.about;
+                            }
+                            if (user.profilePicture) {
+                                const imageUrl = `http://localhost:3000/${user.profilePicture.replace(/\\/g, '/')}`;
+                                profilePicDisplay.src = imageUrl;
+                            }
+                        } else {
+                            console.error('Could not fetch profile:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching profile:', error);
+                    });
+            } else {
+                console.log('No logged-in user found.');
+                // Redirect to login if no session is found
+                window.location.href = 'index.html';
+            }
+
+            // --- Edit Profile Picture Logic ---
+            editPfpLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                pfpInput.click();
+            });
+
+            pfpInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('profilePicture', file);
+
+                fetch(`http://localhost:3000/api/profile/${encodeURIComponent(phoneNumber)}`, {
+                    method: 'PUT',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const imageUrl = `http://localhost:3000/${data.user.profilePicture.replace(/\\/g, '/')}`;
+                        profilePicDisplay.src = imageUrl;
+                        alert('Profile picture updated!');
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating profile picture:', error);
+                    alert(`An error occurred while updating the picture: ${error.message}`);
+                });
+            });
+
+            // --- Edit Text Fields Logic ---
+            document.querySelectorAll('.edit-icon-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const field = e.currentTarget.dataset.field;
+                    if (field === 'phone') {
+                        alert('Phone number cannot be changed from here. Please contact support.');
+                        return;
+                    }
+                    
+                    const displayElement = document.getElementById(field === 'name' ? 'user-name-display' : 'about-display');
+                    const currentValue = displayElement.textContent;
+                    const newValue = prompt(`Enter new ${field}:`, currentValue);
+
+                    if (newValue && newValue.trim() !== currentValue) {
+                        // In a real app, you would call the PUT /api/profile endpoint here
+                        alert(`${field} updated to: ${newValue}`);
+                        displayElement.textContent = newValue;
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
